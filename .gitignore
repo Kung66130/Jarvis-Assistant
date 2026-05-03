@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+voice_cache/
+*.wav
+ui_log.txt
+state.txt
+pos.txt
+.env
+pretrained_models/
+config.json

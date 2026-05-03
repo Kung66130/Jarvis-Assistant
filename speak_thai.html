@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Antigravity Thai Speaker</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .container { background: #1e293b; padding: 2rem; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center; }
+        h1 { color: #38bdf8; }
+        textarea { width: 100%; height: 100px; margin-top: 1rem; background: #334155; border: none; color: white; padding: 0.5rem; border-radius: 0.5rem; }
+        button { margin-top: 1rem; padding: 0.75rem 1.5rem; border: none; border-radius: 0.5rem; background: #38bdf8; color: #0f172a; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #7dd3fc; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Antigravity Thai Voice</h1>
+        <p>กำลังเตรียมพูดภาษาไทยผ่านเอนจินของ Edge...</p>
+        <textarea id="text">สวัสดีครับคุณผู้ใช้ ผมคือ Antigravity ตอนนี้ผมกำลังพูดภาษาไทยผ่าน Microsoft Edge ซึ่งให้เสียงที่เป็นธรรมชาติและนุ่มนวลกว่าเสียงระบบปกติครับ หวังว่าคุณจะชอบเสียงนี้ของผมนะครับ!</textarea>
+        <br>
+        <button onclick="speak()">ลองพูดอีกครั้ง</button>
+    </div>
+
+    <script>
+        function speak() {
+            const text = document.getElementById('text').value;
+            const msg = new SpeechSynthesisUtterance();
+            msg.text = text;
+            msg.lang = 'th-TH';
+            
+            // ค้นหาเสียงภาษาไทยที่นุ่มนวลที่สุด
+            const voices = window.speechSynthesis.getVoices();
+            const thaiVoice = voices.find(v => v.lang === 'th-TH' && v.name.includes('Natural')) || voices.find(v => v.lang === 'th-TH');
+            if (thaiVoice) msg.voice = thaiVoice;
+            
+            window.speechSynthesis.speak(msg);
+        }
+
+        // พูดทันทีที่เปิด
+        setTimeout(() => {
+            // เคล็ดลับ: บาง Browser ต้องมีการ Interact ก่อน แต่ Edge มักจะอนุญาตถ้าเราสั่งผ่านระบบ
+            speak();
+        }, 1000);
+    </script>
+</body>
+</html>
