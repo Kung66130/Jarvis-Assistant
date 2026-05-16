@@ -6,15 +6,16 @@ After you produce your final answer to the user, speak the same text by running 
 
 Command:
 
-`powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$t=@'<PASTE_FINAL_ANSWER_HERE>'@; & 'C:\Project\Voice Assistant Script\speak.ps1' -Text $t"`
+`powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$t=@'<PASTE_SPOKEN_SUMMARY_ONLY_HERE>'@; & 'C:\Project\Jarvis Assistant\speak.ps1' -Provider sapi -Tone calm -Text $t"`
 
 Notes:
 - Paste the full final answer inside the here-string exactly as sent.
-- If the final answer is very long, you may summarize it for speech, but keep the on-screen answer unchanged.
+- For speech, DO NOT read commands, file paths, or code blocks. Speak only a short Thai summary (1-3 sentences).
+- Keep the on-screen answer unchanged; only shorten what is spoken.
 - Do not run other commands unless explicitly requested.
 
 ## Open Jarvis command
 
 If the user says `เปิดระบบจาวิส` or `open jarvis`, start the interactive Jarvis loop by running:
 
-`powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Project\Voice Assistant Script\jarvis.ps1"`
+`powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Project\Jarvis Assistant\jarvis.ps1"`
