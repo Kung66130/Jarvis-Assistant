@@ -233,6 +233,12 @@ class JarvisWidget(QWidget):
         p.fillRect(0, int(self.scan_y) - 30, w, 60, QBrush(scan_grad))
         p.restore()
 
+        # ── 3. Corner Brackets (HUD overlay) ──────────────────────────────────
+        self._draw_corner_brackets(p, w, h, primary)
+
+        # ── 4. Bottom Status Bar ──────────────────────────────────────────────
+        self._draw_status_bar(p, w, h, primary, secondary)
+
         # ── 5. Hex grid background ────────────────────────────────────────────
         self._draw_hex_grid(p, cx, cy, primary)
 
@@ -269,8 +275,39 @@ class JarvisWidget(QWidget):
             p.setBrush(QBrush(c))
             p.drawEllipse(QPointF(pt.x, pt.y), pt.size, pt.size)
 
-        # ── 10. Inner core ────────────────────────────────────────────────────
+        # ── 9. Dynamic Circular Soundwave (SPEAKING Mode) ────────────────────
         core_r = 58
+        if speaking:
+            p.save()
+            p.translate(cx, cy)
+            # Create three layers of circular ripples matching speaking intensity
+            for wave_idx in range(3):
+                wave_path = QPainterPath()
+                points_count = 72
+                amp = (12.0 - wave_idx * 3.0) * self.speak_pulse
+                freq = 3.0 + wave_idx * 1.5
+                phase = self.angle * 0.12 + wave_idx * math.pi / 2
+                
+                for i in range(points_count + 1):
+                    deg = i * (360 / points_count)
+                    rad_angle = math.radians(deg)
+                    # Add circular sine wave distortion
+                    wave_r = (core_r * 0.72) + math.sin(math.radians(deg * freq) + phase) * amp
+                    x = wave_r * math.cos(rad_angle)
+                    y = wave_r * math.sin(rad_angle)
+                    if i == 0:
+                        wave_path.moveTo(x, y)
+                    else:
+                        wave_path.lineTo(x, y)
+                
+                wave_alpha = int(180 - wave_idx * 40)
+                wave_pen = QPen(QColor(primary.red(), primary.green(), primary.blue(), wave_alpha), 1.2)
+                p.setPen(wave_pen)
+                p.setBrush(Qt.NoBrush)
+                p.drawPath(wave_path)
+            p.restore()
+
+        # ── 10. Inner core ────────────────────────────────────────────────────
         core_glow = QRadialGradient(cx, cy, core_r)
         core_glow_a = int(60 + 40 * self.pulse)
         core_glow.setColorAt(0.0, QColor(primary.red(), primary.green(), primary.blue(),

@@ -21,7 +21,7 @@ def load_dotenv(env_path: Path = ENV_PATH) -> None:
         key, value = line.split("=", 1)
         key = key.strip()
         value = value.strip().strip('"').strip("'")
-        if key and key not in os.environ:
+        if key:
             os.environ[key] = value
 
 
@@ -45,6 +45,13 @@ def get_env_value(env_name: str, *, allow_legacy_config: bool = False) -> str | 
 
 def get_api_key(env_name: str = "GEMINI_API_KEY") -> str | None:
     return get_env_value(env_name, allow_legacy_config=True)
+
+
+def get_default_tts_provider() -> str:
+    provider = (get_env_value("JARVIS_TTS_PROVIDER") or "sapi").strip().lower()
+    if provider not in {"edge", "sapi", "auto"}:
+        return "sapi"
+    return provider
 
 
 def load_session_memory(max_turns: int = 6) -> list[dict]:

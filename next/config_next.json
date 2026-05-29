@@ -1,0 +1,9 @@
+{
+  "model": "gemini-2.5-flash-preview-05-20",
+  "live_model": "gemini-2.0-flash-live-001",
+  "tts_provider": "auto",
+  "stt_engine": "whisper",
+  "whisper_model": "small",
+  "whisper_device": "cpu",
+  "whisper_compute_type": "int8"
+}

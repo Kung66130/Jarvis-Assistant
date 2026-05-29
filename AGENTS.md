@@ -1,21 +1,22 @@
-﻿# Voice Assistant Script - Agent Rules
+# Voice Assistant Script - Agent Rules
 
-## Text-to-speech after every answer
+## Voice Interaction Rules
 
-After you produce your final answer to the user, speak the same text by running a PowerShell command.
+You should ONLY use voice synthesis (TTS) in the following three scenarios. For all other responses, provide only text.
 
-Command:
-
-`powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$t=@'<PASTE_SPOKEN_SUMMARY_ONLY_HERE>'@; & 'C:\Project\Jarvis Assistant\speak.ps1' -Provider sapi -Tone calm -Text $t"`
-
-Notes:
-- Paste the full final answer inside the here-string exactly as sent.
-- For speech, DO NOT read commands, file paths, or code blocks. Speak only a short Thai summary (1-3 sentences).
-- Keep the on-screen answer unchanged; only shorten what is spoken.
-- Do not run other commands unless explicitly requested.
-
-## Open Jarvis command
-
-If the user says `เปิดระบบจาวิส` or `open jarvis`, start the interactive Jarvis loop by running:
-
+### 1. Opening the System
+When the user says "เปิดระบบจาวิส" or "open jarvis", start the system by running:
 `powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Project\Jarvis Assistant\jarvis.ps1"`
+
+### 2. Shutting Down the System
+When the user says "ปิดระบบจาวิส" or "shutdown", speak a farewell and shut down.
+Command:
+`powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$t=@'รับทราบครับบอส กำลังปิดระบบจาร์วิสครับ แล้วพบกันใหม่ครับ'@; & 'C:\Project\Jarvis Assistant\speak.ps1' -Text $t"`
+
+### 3. Morning Brief (มอนิ่งบรีฟ)
+When the user says "มอนิ่งบรีฟ", the assistant must navigate to https://www.sbito.co.th/Research.aspx, identify the Morning Brief article for the specific date mentioned (or the latest if no date is given), and extract ONLY the content under the "Interesting Issues" (ประเด็นที่น่าติดตาม) section. Read this entire section aloud to the user exactly as it is without summarizing.
+
+## CRITICAL: Mandatory Tool Execution
+- **NEVER** just paste a command in your response text without running it if it is meant to be executed.
+- **ALWAYS** use the `run_command` tool to execute these commands.
+- Verify execution by checking the logs for successful playback or script initialization.

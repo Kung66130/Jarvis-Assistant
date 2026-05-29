@@ -1,22 +1,17 @@
 param(
-    [string]$Text = "Hello Boss",
-    [string]$Provider = "edge",
-    [string]$Tone = "friendly",
+    [Parameter(Mandatory = $true)][string]$Text,
     [string]$Voice = "niwat",
-    [string]$Rate = "",
-    [string]$Pitch = "",
-    [switch]$Precache
+    [string]$Provider = "auto",
+    [string]$Tone = "calm"
 )
 
-function Get-PythonCommand {
-    $venvPython = Join-Path $PSScriptRoot ".venv\\Scripts\\python.exe"
-    if (Test-Path $venvPython) {
-        return [PSCustomObject]@{ Command = $venvPython; Args = @() }
-    }
+$PSScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
+function Get-PythonCommand {
     $candidates = @(
+        [PSCustomObject]@{ Command = "C:\Users\kung6\AppData\Local\Programs\Python\Python312\python.exe"; Args = @() },
         [PSCustomObject]@{ Command = "python"; Args = @() },
-        [PSCustomObject]@{ Command = "py"; Args = @() }
+        [PSCustomObject]@{ Command = "py"; Args = @("-3.12") }
     )
 
     foreach ($candidate in $candidates) {
@@ -29,40 +24,22 @@ function Get-PythonCommand {
     throw "Python runtime not found. Install Python or put python.exe on PATH."
 }
 
-$scriptPath = Join-Path $PSScriptRoot "pro_speak.py"
-if (-not (Test-Path $scriptPath)) {
-    throw "Error: File pro_speak.py not found"
-}
-
 $python = Get-PythonCommand
-$arguments = @()
-$arguments += $python.Args
-$arguments += $scriptPath
-$arguments += "--provider"
-$arguments += $Provider
-$arguments += "--tone"
-$arguments += $Tone
-$arguments += "--voice"
-$arguments += $Voice
 
-if ($Rate) {
-    $arguments += "--rate"
-    $arguments += $Rate
+# Avoid mojibake when passing Thai text via argv (console codepage issues).
+# Write to a UTF-8 temp file and let Python read it as UTF-8.
+$tmp = Join-Path $env:TEMP ("jarvis_speak_{0}.txt" -f ([Guid]::NewGuid().ToString("N")))
+try {
+    Set-Content -LiteralPath $tmp -Value $Text -Encoding utf8
+
+    $providerName = ($Provider | ForEach-Object { $_.ToLowerInvariant() })
+    if ($providerName -notin @("auto", "edge", "sapi")) {
+        Write-Warning "speak.ps1: Provider '$Provider' is not supported in this build; using auto."
+        $providerName = "auto"
+    }
+
+    & $python.Command @($python.Args + "$PSScriptRoot\pro_speak.py" + "--file" + $tmp + "--voice" + $Voice + "--provider" + $providerName)
 }
-
-if ($Pitch) {
-    $arguments += "--pitch"
-    $arguments += $Pitch
-}
-
-if ($Precache) {
-    $arguments += "--cache-only"
-}
-
-$arguments += "--"
-$arguments += $Text
-
-& $python.Command @arguments
-if ($LASTEXITCODE -ne 0) {
-    exit $LASTEXITCODE
+finally {
+    Remove-Item -LiteralPath $tmp -ErrorAction SilentlyContinue
 }
